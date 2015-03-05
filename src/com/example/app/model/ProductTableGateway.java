@@ -19,7 +19,6 @@ public class ProductTableGateway {
     private static final String COLUMN_COST_PRICE = "costPrice";
     private static final String COLUMN_SALE_PRICE = "salePrice";
     private static final String COLUMN_QUANTITY = "quantity";
-    private Object Product;
     
     public ProductTableGateway(Connection connection) {
         mConnection = connection;
@@ -119,7 +118,7 @@ public class ProductTableGateway {
 
    
 
-    boolean updateProduct(int id) throws SQLException {        
+    boolean updateProduct(Product p) throws SQLException {        
         String query;
         PreparedStatement stmt;
         int numRowsAffected;
