@@ -19,12 +19,13 @@ public class ProductTableGateway {
     private static final String COLUMN_COST_PRICE = "costPrice";
     private static final String COLUMN_SALE_PRICE = "salePrice";
     private static final String COLUMN_QUANTITY = "quantity";
+    private static final String COLUMN_CATEGORY_ID = "categoryId";
     
     public ProductTableGateway(Connection connection) {
         mConnection = connection;
     }
     
-        public int insertProduct(String n, String d, double cp, double sp, int q) throws SQLException {
+        public int insertProduct(String n, String d, double cp, double sp, int q, int cid) throws SQLException {
         Product p = null;
 
         String query;       // the SQL query to execute
@@ -38,8 +39,9 @@ public class ProductTableGateway {
                 COLUMN_DESCRIPTION + ", " +
                 COLUMN_COST_PRICE + ", " +
                 COLUMN_SALE_PRICE + ", " +
-                COLUMN_QUANTITY +
-                ") VALUES (?, ?, ?, ?, ?)";
+                COLUMN_QUANTITY + ", " +
+                COLUMN_CATEGORY_ID +
+                ") VALUES (?, ?, ?, ?, ?, ?)";
 
         // create a PreparedStatement object to execute the query and insert the values into the query
         stmt = mConnection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
@@ -48,6 +50,7 @@ public class ProductTableGateway {
         stmt.setDouble(3, cp);
         stmt.setDouble(4, sp);
         stmt.setInt(5, q);
+        stmt.setInt(6, cid);
 
         //  execute the query and make sure that one and only one row was inserted into the database
         numRowsAffected = stmt.executeUpdate();
@@ -63,19 +66,19 @@ public class ProductTableGateway {
         return id;
     }
 
-      public boolean deleteProduct(int id) throws SQLException {
-          String query;
-          PreparedStatement stmt;
-          int numRowsAffected;
-          
-          query = "DELETE FROM" + TABLE_NAME + "WHERE" + COLUMN_ID + "+?"; 
-           stmt = mConnection.prepareStatement(query);
-           stmt.setInt(1, id);
-           
-           numRowsAffected = stmt.executeUpdate();
-           
-           return (numRowsAffected == 1);
-                  }  
+    public boolean deleteProduct(int id) throws SQLException {
+        String query;
+        PreparedStatement stmt;
+        int numRowsAffected;
+
+        query = "DELETE FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " = ?"; 
+         stmt = mConnection.prepareStatement(query);
+         stmt.setInt(1, id);
+
+         numRowsAffected = stmt.executeUpdate();
+
+         return (numRowsAffected == 1);
+    }  
     
     public List<Product> getProducts() throws SQLException {
         String query;                   // the SQL query to execute
@@ -85,7 +88,7 @@ public class ProductTableGateway {
                                         // in the result of the query the id of a programmer
         
         String name, description;
-        int id, quantity;
+        int id, quantity, categoryId;
         double costPrice, salePrice;
 
         Product p;                 
@@ -107,12 +110,13 @@ public class ProductTableGateway {
             costPrice = rs.getDouble(COLUMN_COST_PRICE);
             salePrice = rs.getDouble(COLUMN_SALE_PRICE);
             quantity = rs.getInt(COLUMN_QUANTITY);
+            categoryId = rs.getInt(COLUMN_CATEGORY_ID);
 
-            p = new Product(id, name, description, costPrice, salePrice, quantity);
+            p = new Product(id, name, description, costPrice, salePrice, quantity, categoryId);
             products.add(p);
         }
 
-        // return the list of Programmer objects retrieved
+        // return the list of Product objects retrieved
         return products;
     }
 
@@ -128,7 +132,8 @@ public class ProductTableGateway {
                 + COLUMN_DESCRIPTION + " = ?, "
                 + COLUMN_COST_PRICE + " = ?, "
                 + COLUMN_SALE_PRICE + " = ?, "
-                + COLUMN_QUANTITY + " = ?, "                
+                + COLUMN_QUANTITY + " = ?, " 
+                + COLUMN_CATEGORY_ID + " = ? " 
                 + " WHERE " + COLUMN_ID + " = ?";
 
         stmt = mConnection.prepareStatement(query);
@@ -137,7 +142,7 @@ public class ProductTableGateway {
         stmt.setDouble(3, p.getCostPrice());
         stmt.setDouble(4, p.getSalePrice());
         stmt.setInt(5, p.getQuantity());
-        stmt.setInt(6, p.getId());
+        stmt.setInt(6, p.getCategoryId());
 
         numRowsAffected = stmt.executeUpdate();
 
